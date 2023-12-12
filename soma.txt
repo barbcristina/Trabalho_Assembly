@@ -1,0 +1,74 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww17080\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\li960\fi-960\partightenfactor0
+
+\f0\fs32 \cf0 \expnd0\expndtw0\kerning0
+addi t0, t0, 0x30 # t0 = 1 = 011 0000\
+addi t1, t1, 0x4e # t1 = 3.75 = 100 1110\
+srli t3, t0, 4	# expoente de t0\
+srli t4, t1, 4 # expoente de t1\
+andi t5, t0, 15 # mantissa de t0\
+andi t6, t1, 15 # mantissa de t1\
+ori t5, t5, 16 # adiciona o 1 implicito\
+ori t6, t6, 16 # adiciona o 1 implicito\
+beq t3, t4, SOMA # se os expoentes s\'e3o iguais vai direto para a soma\
+blt t4, t3, AJUSTEt4 # ajusta os expoentes caso diferentes\
+blt t3, t4, AJUSTEt3\
+\
+AJUSTEt4:\
+addi t4, t4, 1 # soma 1 ao expoente at\'e9 que sejam iguais\
+srli t6, t6, 1 # desloca a mantissa para cada 1 somado no expoente\
+bne t3, t4, AJUSTEt4\
+beq t3, t4, SOMA\
+\
+AJUSTEt3:\
+addi t3, t3, 1 # analogo ao AJUSTE4\
+srli t5, t5, 1\
+bne t3, t4, AJUSTEt3 \
+beq t3, t4, SOMA \
+\
+SOMA:\
+andi t1,t1, 0 \
+andi t4, t4, 0\
+addi t4, t4, 0x1f # t4 = 11111\
+add t1, t5, t6 # soma das mantissas\
+bge t1, t4, AJUSTANORMA # se a mantissa for maior que 11111, est\'e1 fora da norma\
+andi t2, t2, 32\
+srli t2, t2, 5 \
+andi t2, t2, 15\
+slli t3, t3, 4 # desloca a mantissa em 4 para a esquerda\
+andi t1, t1, 15 # zera qualquer numero fora da mantissa\
+or t1, t3, t1 # combina o expoente e a mantissa\
+andi t0, t0, 0\
+sw, t0, 4(gp)\
+Jal FIM\
+\
+AJUSTANORMA:\
+addi t3, t3, 1 # adiciona 1 ao expoente\
+andi s0, t1, 1\
+addi s1, x0, 1\
+beq s0, s1, ERROARREDONDAMENTO # se o bit a ser perdido da mantissa for, perderemos precisao\
+andi t0, t0, 0\
+sw, t0, 4(gp)\
+j RESTOSOMA # se for 0 continua a soma normalmente\
+\
+ERROARREDONDAMENTO:\
+andi t0, t0, 0\
+addi t0, x1, 1\
+sw, t0, 4(gp)\
+\
+RESTOSOMA:\
+srli t1, t1, 1	# desloca a mantissa para a direita\
+andi t2, t2, 32\
+srli t2, t2, 5 \
+andi t2, t2, 15\
+slli t3, t3, 4\
+andi t1, t1, 15\
+or t1, t3, t1 # deve ser 0x53 = 101 0011\
+\
+FIM:\
+sw, t1, 0(gp) # grava o resultado na posi\'e7\'e3o (gp+0)}
