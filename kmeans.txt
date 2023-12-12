@@ -1,158 +1,151 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2709
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+addi t0, t0, 20
+addi t1, t1, 20
+sw, t0, 0(gp) # centroide 1 coord x
+sw, t1, 4(gp) # centroide 1 coord y
 
-\f0\fs24 \cf0 addi t0, t0, 20\
-addi t1, t1, 20\
-sw, t0, 0(gp) # centroide 1 coord x\
-sw, t1, 4(gp) # centroide 1 coord y\
-\
-add, t0, t0, t0\
-add, t1, t1, t1\
-sw, t0, 8(gp) # centroide 2 coord x\
-sw, t1, 12(gp) # centroide 2 coord y\
-\
-andi, t0, t0, 0\
-andi, t1, t1, 0\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 16(gp) # 1\
-sw, t1, 20(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 24(gp) # 2\
-sw, t1, 28(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 32(gp) # 3\
-sw, t1, 36(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 40(gp) # 4\
-sw, t1, 44(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 48(gp) # 5\
-sw, t1, 52(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 56(gp) # 6\
-sw, t1, 60(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 64(gp) # 7\
-sw, t1, 68(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 72(gp) # 8\
-sw, t1, 76(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 80(gp) # 9\
-sw, t1, 84(gp)\
-\
-addi t0, t0, 5\
-addi t1, t1, 5\
-sw, t0, 88(gp) # 10\
-sw, t1, 92(gp)\
-\
-addi t0, x0, -1\
-sw, t0, 96(gp) # fim\
-sw, t0, 100(gp)\
-\
-addi t0, x0, 0\
-addi t1, x0, 0\
-\
-lw t0, 0(gp)  # coordenada x do centroide 1\
-lw t1, 4(gp)  # coordenada y do centroide 1\
-addi s0, x0, 0 # contador do cluster 1\
-lw t2, 8(gp)  # coordenada x do centroide 2\
-lw t3, 12(gp) # coordenada y do centroide 2\
-addi s1, x0, 0 # contador do cluster 2\
-\
-addi t4, gp, 16  # Endere\'e7o do primeiro ponto\
-\
-loop:\
-    # Carregar coordenadas do ponto atual\
-    lw t5, 0(t4)   # coordenada x do ponto atual\
-    lw t6, 4(t4)   # coordenada y do ponto atual\
-    \
-    # Calcular dist\'e2ncia euclidiana para o primeiro centroide (t0, t1)\
-    sub s7, t5, t0\
-    mul s7, s7, s7\
-\
-    lw t5, 4(t4)   # recarregar a coordenada y do ponto atual\
-    sub s8, t6, t1\
-    mul s8, s8, s8\
-\
-    add s7, s7, s8  # soma das diferen\'e7as\
-\
-# Calcular dist\'e2ncia euclidiana para o segundo centroide (t2, t3)\
-    lw t5, 0(t4)   # recarregar a coordenada x do ponto atual\
-    sub s8, t5, t2\
-    mul s8, s8, s8\
-\
-    lw t5, 4(t4)   # recarregar a coordenada y do ponto atual\
-    sub s9, t6, t3\
-    mul s9, s9, s9\
-\
-    add s8, s8, s9  # soma das diferen\'e7as\
-\
-    # Comparar dist\'e2ncias e atribuir ponto ao cluster mais pr\'f3ximo\
-    blt s7, s8, menor\
-    j menor2\
-    \
-menor:\
-add s9, x0, s7\
-j check_cluster\
-    \
-menor2:\
-add s9, x0, s8\
-\
-check_cluster:\
-	beqz s9, cluster1  # Se t9 for zero, o ponto pertence ao primeiro cluster\
-    j cluster2  # Caso contr\'e1rio, o ponto pertence ao segundo cluster\
-    \
-cluster1:\
-addi s0, s0, 1     # incrementa o contador de pontos no cluster 1\
-lw s10, 0(t4)      # carrega coordenada x do ponto atual\
-add t0, t0,s10    # soma as coordenadas x no cluster 1\
-lw s11, 4(t4)      # carrega coordenada y do ponto atual\
-add t1, t1, s11    # soma as coordenadas y no cluster 1\
-\
-j next_point       # vai para o pr\'f3ximo ponto\
-    \
-cluster2:\
-addi s1, s1, 1     # incrementa o contador de pontos no cluster 2\
-lw s10, 0(t4)      # carrega coordenada x do ponto atual\
-add t2, t2, s10    # soma as coordenadas x no cluster 2\
-lw s11, 4(t4)      # carrega coordenada y do ponto atual\
-add t3, t3, s11    # soma as coordenadas y no cluster 2\
-\
-next_point:\
-    addi t4, t4, 8  # avan\'e7a para o pr\'f3ximo ponto\
-    bnez t4, loop  # se n\'e3o for -1, continua\
-\
-div s2, t0, s0 # soma das coords dos pontos dividido\
-div s3, t1, s0 # pelo numero total de pontos\
-\
-div s4, t2, s1\
-div s5, t3, s1\
-\
-sw, s2, 0(gp) # novo centroide 1 coord x\
-sw, s3, 4(gp) # novo centroide 1 coord y\
-\
-sw, s4, 8(gp) # novo centroide 2 coord x\
-sw, s5, 12(gp) # novo centroide 2 coord y}
+add, t0, t0, t0
+add, t1, t1, t1
+sw, t0, 8(gp) # centroide 2 coord x
+sw, t1, 12(gp) # centroide 2 coord y
+
+andi, t0, t0, 0
+andi, t1, t1, 0
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 16(gp) # 1
+sw, t1, 20(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 24(gp) # 2
+sw, t1, 28(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 32(gp) # 3
+sw, t1, 36(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 40(gp) # 4
+sw, t1, 44(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 48(gp) # 5
+sw, t1, 52(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 56(gp) # 6
+sw, t1, 60(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 64(gp) # 7
+sw, t1, 68(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 72(gp) # 8
+sw, t1, 76(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 80(gp) # 9
+sw, t1, 84(gp)
+
+addi t0, t0, 5
+addi t1, t1, 5
+sw, t0, 88(gp) # 10
+sw, t1, 92(gp)
+
+addi t0, x0, -1
+sw, t0, 96(gp) # fim
+sw, t0, 100(gp)
+
+addi t0, x0, 0
+addi t1, x0, 0
+
+lw t0, 0(gp)  # coordenada x do centroide 1
+lw t1, 4(gp)  # coordenada y do centroide 1
+addi s0, x0, 0 # contador do cluster 1
+lw t2, 8(gp)  # coordenada x do centroide 2
+lw t3, 12(gp) # coordenada y do centroide 2
+addi s1, x0, 0 # contador do cluster 2
+
+addi t4, gp, 16  # Endereço do primeiro ponto
+
+loop:
+    # Carregar coordenadas do ponto atual
+    lw t5, 0(t4)   # coordenada x do ponto atual
+    lw t6, 4(t4)   # coordenada y do ponto atual
+    
+    # Calcular distância euclidiana para o primeiro centroide (t0, t1)
+    sub s7, t5, t0
+    mul s7, s7, s7
+
+    lw t5, 4(t4)   # recarregar a coordenada y do ponto atual
+    sub s8, t6, t1
+    mul s8, s8, s8
+
+    add s7, s7, s8  # soma das diferenças
+
+# Calcular distância euclidiana para o segundo centroide (t2, t3)
+    lw t5, 0(t4)   # recarregar a coordenada x do ponto atual
+    sub s8, t5, t2
+    mul s8, s8, s8
+
+    lw t5, 4(t4)   # recarregar a coordenada y do ponto atual
+    sub s9, t6, t3
+    mul s9, s9, s9
+
+    add s8, s8, s9  # soma das diferenças
+
+    # Comparar distâncias e atribuir ponto ao cluster mais próximo
+    blt s7, s8, menor
+    j menor2
+    
+menor:
+add s9, x0, s7
+j check_cluster
+    
+menor2:
+add s9, x0, s8
+
+check_cluster:
+	beqz s9, cluster1  # Se t9 for zero, o ponto pertence ao primeiro cluster
+    j cluster2  # Caso contrário, o ponto pertence ao segundo cluster
+    
+cluster1:
+addi s0, s0, 1     # incrementa o contador de pontos no cluster 1
+lw s10, 0(t4)      # carrega coordenada x do ponto atual
+add t0, t0,s10    # soma as coordenadas x no cluster 1
+lw s11, 4(t4)      # carrega coordenada y do ponto atual
+add t1, t1, s11    # soma as coordenadas y no cluster 1
+
+j next_point       # vai para o próximo ponto
+    
+cluster2:
+addi s1, s1, 1     # incrementa o contador de pontos no cluster 2
+lw s10, 0(t4)      # carrega coordenada x do ponto atual
+add t2, t2, s10    # soma as coordenadas x no cluster 2
+lw s11, 4(t4)      # carrega coordenada y do ponto atual
+add t3, t3, s11    # soma as coordenadas y no cluster 2
+
+next_point:
+    addi t4, t4, 8  # avança para o próximo ponto
+    bnez t4, loop  # se não for -1, continua
+
+div s2, t0, s0 # soma das coords dos pontos dividido
+div s3, t1, s0 # pelo numero total de pontos
+
+div s4, t2, s1
+div s5, t3, s1
+
+sw, s2, 0(gp) # novo centroide 1 coord x
+sw, s3, 4(gp) # novo centroide 1 coord y
+
+sw, s4, 8(gp) # novo centroide 2 coord x
+sw, s5, 12(gp) # novo centroide 2 coord y
